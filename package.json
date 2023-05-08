@@ -1,0 +1,31 @@
+{
+  "name": "anime-flex-back-end",
+  "version": "1.0.0",
+  "description": "Este repositório é dedicado ao Back-End do projeto Final da Disciplina de Desenvolvimento de Software para Web, turma de 2023.1 da Universidade Federal do Ceará - UFC",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Matt-Rodrigues-EC/Anime-Flex-Back-End.git"
+  },
+  "keywords": [],
+  "author": "Matheus Rodrigues",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Matt-Rodrigues-EC/Anime-Flex-Back-End/issues"
+  },
+  "homepage": "https://github.com/Matt-Rodrigues-EC/Anime-Flex-Back-End#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "joi": "^17.9.2",
+    "mongodb": "^5.4.0",
+    "nodemon": "^2.0.22",
+    "uuid": "^9.0.0"
+  }
+}
