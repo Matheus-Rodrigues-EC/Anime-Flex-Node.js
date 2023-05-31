@@ -1,11 +1,13 @@
 {
   "name": "anime-flex-back-end",
+  "type": "module",
   "version": "1.0.0",
   "description": "Este repositório é dedicado ao Back-End do projeto Final da Disciplina de Desenvolvimento de Software para Web, turma de 2023.1 da Universidade Federal do Ceará - UFC",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/app.js"
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
   },
   "repository": {
     "type": "git",
