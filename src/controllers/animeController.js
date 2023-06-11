@@ -1,7 +1,7 @@
 import dataBase from "../dataBase.js";
 import { ObjectId } from "mongodb";
 
-const addAnime = async (req, res) => {
+const createAnime = async (req, res) => {
     const auth = req.headers.authorization;
     if(!auth) return res.status(422).send("Não autorizado.");
     const token = auth.replace('Baerer ', '');
@@ -22,6 +22,31 @@ const addAnime = async (req, res) => {
     }catch(error){
         return res.status(500).send(error);
     }
+}
+
+const readAnimes = async (req, res) => {
+    
+    try {
+        const animes = await dataBase.collection("animes").find().toArray();
+        return res.status(200).send(animes);
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+}
+
+const readAnime = async (req, res) => {
+    const { name } = req.params;
+    if(!name) return res.status(422).send("Anime não fornecido.")
+    
+    
+    try {
+        const anime = await dataBase.collection("animes").findOne({Name: name});
+        const seasons = await dataBase.collection("seasons").find({Anime: name}).toArray();
+        const busca = {Anime: anime, Seasons: seasons};
+        return res.status(200).send(busca);
+    } catch (error) {
+        return res.status(500).send(error);
+    }
 
 }
 
@@ -35,7 +60,8 @@ const updateAnime = async (req, res) => {
     } catch (error) {
         return res.status(500).send(error);
     }
-    const {id, cover, name} = req.body;
+    const {cover, name} = req.body;
+    const { id } = req.headers;
     try{
         const anime = await dataBase.collection("animes").findOne(new ObjectId(id));
         if(anime){
@@ -49,7 +75,7 @@ const updateAnime = async (req, res) => {
     }
 }
 
-const removeAnime = async (req, res) => {
+const deleteAnime = async (req, res) => {
     const auth = req.headers.authorization;
     if(!auth) return res.status(422).send("Não autorizado.");
     const token = auth.replace('Baerer ', '');
@@ -79,7 +105,9 @@ const removeAnime = async (req, res) => {
 
 
 export {
-    addAnime, 
-    removeAnime, 
-    updateAnime
+    createAnime, 
+    readAnimes,
+    readAnime,
+    updateAnime,
+    deleteAnime 
 }

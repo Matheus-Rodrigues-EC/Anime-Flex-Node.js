@@ -1,15 +1,16 @@
 import cors from "cors";
 import express from "express";
 
-import { addEpisode, updateEpisode, removeEpisode } from '../controllers/episodeController.js';
+import { createEpisode, readEpisode, updateEpisode, deleteEpisode } from '../controllers/episodeController.js';
 
 const episode = express();
 episode.use(cors());
 episode.use(express.json());
 
 // Episodes Routes
-episode.post("/addepisode", addEpisode);
+episode.post("/createEpisode", createEpisode);
+episode.get("/:anime/:season/:episode", readEpisode);
 episode.put("/updateepisode", updateEpisode);
-episode.delete("/removeepisode", removeEpisode);
+episode.delete("/deleteEpisode", deleteEpisode);
 
 export default episode;

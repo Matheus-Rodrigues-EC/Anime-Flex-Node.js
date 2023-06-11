@@ -1,7 +1,7 @@
 import dataBase from "../dataBase.js";
 import { ObjectId } from "mongodb";
 
-const AddSeason = async (req, res) => {
+const createSeason = async (req, res) => {
     const auth = req.headers.authorization;
     if(!auth) return res.status(422).send("Não autorizado.");
     const token = auth.replace('Baerer ', '');
@@ -21,12 +21,41 @@ const AddSeason = async (req, res) => {
     }
 
     try{
-        const season = await dataBase.collection("seasons").findOne({$or: [{Name: season_name}, {Season: n_Season}]});
+        const season = await dataBase.collection("seasons").findOne({$and: [{Name: season_name}, {Season: n_Season}]});
         if(season) return res.status(409).send("Temporada já cadastrada.");
 
         await dataBase.collection("seasons").insertOne({Anime: anime, Season: n_Season, Cover: season_cover, Name: season_name});
         return res.status(201).send("Temporada adicionada");
     }catch(error){
+        return res.status(500).send(error);
+    }
+}
+
+const readSeasons = async (req, res) => {
+    const {name, season} = req.params;
+    if(!name || !season) return res.status(404).send("Não encontrado");
+
+    try {
+        const seasonInfo = await dataBase.collection("seasons").findOne({Name: season});
+        const episodesList = await dataBase.collection("episodes").find({Season: season}).toArray();
+
+        const busca = {Season: seasonInfo, Episodes: episodesList};
+        return res.status(200).send(busca)
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+}
+
+const readSeason = async (req, res) =>{
+    const {season} = req.params;
+    if(!season) return res.status(404).send("Não encontrado");
+
+    try {
+        const seasonInfo = await dataBase.collection("seasons").findOne({Name: season});
+
+        const busca = {Season: seasonInfo, Episodes: episodesList};
+        return res.status(200).send(busca)
+    } catch (error) {
         return res.status(500).send(error);
     }
 }
@@ -64,7 +93,7 @@ const updateSeason = async (req, res) => {
     }
 }
 
-const removeSeason = async (req, res) => {
+const deleteSeason = async (req, res) => {
     const auth = req.headers.authorization;
     if(!auth) return res.status(422).send("Não autorizado.");
     const token = auth.replace('Baerer ', '');
@@ -93,7 +122,9 @@ const removeSeason = async (req, res) => {
 
 
 export {
-    AddSeason, 
+    createSeason, 
+    readSeasons,
+    readSeason,
     updateSeason,
-    removeSeason
+    deleteSeason
 }
