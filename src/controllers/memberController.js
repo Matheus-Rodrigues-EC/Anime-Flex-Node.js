@@ -8,11 +8,11 @@ const signIn = async (req, res) => {
 
     try{
         const user = await dataBase.collection("members").findOne({email: email});
-        if(!user) return res.status(404).send("Usuário não encontrado");
+        if(!user) return res.status(404).send("Usuário e/ou senha incorretos");
         if(user && bcrypt.compareSync(password, user.password)){
             const token = uuid();
             await dataBase.collection("sessions").insertOne({userId: user._id, token: token});
-            return res.status(200).send({token: token});
+            return res.status(200).send({token: token, Name: user.name, Image: user.image, Email: user.email});
         }else{
             return res.status(401).send("Usuário e/ou senha incorretos");
         }

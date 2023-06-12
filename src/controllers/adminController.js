@@ -8,15 +8,16 @@ const loginAdmin = async (req, res) => {
     try{
         if((ADMINROOT.Name === adminName) && (ADMINROOT.Password === adminPassword)){
             const token = uuid();
-            await dataBase.collection("adminsessions").insertOne({token});
-            return res.status(200).send({token: token});
+            await dataBase.collection("adminsessions").insertOne({adminId: 'Skeeshiro', token});
+            const admin = {adminName: 'Skeeshiro', token};
+            return res.status(200).send(admin);
         }
         const admin = await dataBase.collection("admins").findOne({adminName: adminName});
         if(!admin ) return res.status(404).send("Administrador não encontrado");
         if(admin && bcrypt.compareSync(adminPassword, admin.adminPassword)){
             const token = uuid();
-            await dataBase.collection("adminsessions").insertOne({adminId: admin._id,token});
-            return res.status(200).send({token: token});
+            await dataBase.collection("adminsessions").insertOne({adminId: admin._id, token});
+            return res.status(200).send({adminName, token: token});
         }else{
             return res.status(401).send("Administrador e/ou senha incorretos");
         }
@@ -161,4 +162,23 @@ const banMember = async (req, res) => {
 
 }
 
-export { createAdmin, readAdmin, updateAdmin, loginAdmin, deleteAdmin, listMembers, banMember }
+const logOut = async (req, res) => {
+    const auth = req.headers.authorization;
+    if(!auth) return res.status(422).send("Não autorizado");
+
+    const token = auth.replace('Baerer ', '');
+
+    try {
+        const session = await dataBase.collection("adminsessions").findOne({token});
+        if(!session){
+            return res.status(404).send("Sessão encerrada, Administrador não logado");
+        }else{
+            await dataBase.collection("adminsessions").deleteOne({token});
+            return res.status(202).send("Sessão encerrada");
+        }
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+}
+
+export { createAdmin, readAdmin, updateAdmin, loginAdmin, deleteAdmin, listMembers, banMember, logOut }

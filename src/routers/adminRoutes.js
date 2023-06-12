@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 
-import { loginAdmin, createAdmin, readAdmin, updateAdmin, deleteAdmin, listMembers, banMember } from "../controllers/adminController.js";
+import { loginAdmin, createAdmin, readAdmin, updateAdmin, deleteAdmin, listMembers, banMember, logOut } from "../controllers/adminController.js";
 
 
 const admin = express();
@@ -16,5 +16,6 @@ admin.get("/getMembers", listMembers)
 admin.put("/updateadmin", updateAdmin);
 admin.delete("/deleteAdmin", deleteAdmin);
 admin.delete("/banMember", banMember);
+admin.delete("/logoutAdmin", logOut);
 
 export default admin;
