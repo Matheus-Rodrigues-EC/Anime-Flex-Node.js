@@ -12,7 +12,8 @@ const signIn = async (req, res) => {
         if(user && bcrypt.compareSync(password, user.password)){
             const token = uuid();
             await dataBase.collection("sessions").insertOne({userId: user._id, token: token});
-            return res.status(200).send({token: token, Name: user.name, Image: user.image, Email: user.email});
+            console.log(user)
+            return res.status(200).send({token: token, Id: user._id, Name: user.name, Image: user.image, Email: user.email});
         }else{
             return res.status(401).send("Usuário e/ou senha incorretos");
         }

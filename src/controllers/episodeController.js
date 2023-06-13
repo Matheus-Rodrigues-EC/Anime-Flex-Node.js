@@ -11,7 +11,7 @@ const createEpisode = async (req, res) => {
     } catch (error) {
         return res.status(500).send(error);
     }
-    const  {anime, season_name, episode_name, episode_number, episode_cover, url} = req.body;
+    const  {anime, season_name, episode_name, episode_number, url} = req.body;
 
     try {
         const season = await dataBase.collection("seasons").findOne({Name: season_name});
@@ -29,7 +29,6 @@ const createEpisode = async (req, res) => {
                                                             Season: season_name,
                                                             Name: episode_name, 
                                                             Number: episode_number,
-                                                            Cover: episode_cover,
                                                             URL: url
                                                         })
         return res.status(201).send("Episódio adicionado.");
@@ -64,7 +63,7 @@ const updateEpisode = async (req, res) => {
 
     const { id } = req.headers;
     if(!id) return res.status(422).send("Id não encontrado");
-    const  {season_name, episode_name, episode_number, episode_cover, url} = req.body;
+    const  {season_name, episode_name, episode_number, url} = req.body;
 
     try {
         const season = await dataBase.collection("seasons").findOne({Name: season_name});
@@ -78,7 +77,6 @@ const updateEpisode = async (req, res) => {
                                                                                     Season: season_name,
                                                                                     Name: episode_name, 
                                                                                     Number: episode_number,
-                                                                                    Cover: episode_cover,
                                                                                     URL: url
                                                                                 }});
 
