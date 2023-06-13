@@ -12,7 +12,6 @@ const signIn = async (req, res) => {
         if(user && bcrypt.compareSync(password, user.password)){
             const token = uuid();
             await dataBase.collection("sessions").insertOne({userId: user._id, token: token});
-            console.log(user)
             return res.status(200).send({token: token, Id: user._id, Name: user.name, Image: user.image, Email: user.email});
         }else{
             return res.status(401).send("Usuário e/ou senha incorretos");
@@ -23,7 +22,7 @@ const signIn = async (req, res) => {
     }
 }
 
-const signUp = async (req, res) =>{
+const createMember = async (req, res) =>{
     const {name, image, email, password} = req.body;
     const hashPass = bcrypt.hashSync(password, 5);
 
@@ -35,6 +34,29 @@ const signUp = async (req, res) =>{
         return res.sendStatus(201);
     }catch(error){
         return res.status(401).send(error);
+    }
+}
+
+const updateMember = async (req, res) => {
+    const auth = req.headers.authorization;
+    if(!auth) return res.status(422).send("Não autorizado");
+
+    const token = auth.replace('Baerer ', '');
+    const { id } = req.headers;
+    const { name, image } = req.body;
+
+    try {
+        const user = await dataBase.collection("sessions").findOne({token});
+        if(!user) return res.status(401).send("Não autorizado");
+        const member = await dataBase.collection("members").findOne({_id: new ObjectId(id)});
+        if(!member) return res.status(404).send("Usuário não encontrado");
+        
+        await dataBase.collection("members").updateOne({_id: new ObjectId(id)}, {$set: {name, image}});
+        const upMember = await dataBase.collection("members").findOne({_id: new ObjectId(id)});
+
+        return res.status(202).send({token, Id: upMember._id,Name: upMember.name, Image: upMember.image, Email: upMember.email});
+    } catch (error) {
+        return res.status(500).send(error);
     }
 }
 
@@ -85,18 +107,19 @@ const favoritar = async (req, res) => {
     const auth = req.headers.authorization;
     if(!auth) return res.status(422).send("Não autorizado.");
     const token = auth.replace('Baerer ', '');
-    const { anime_id } = req.headers;
-    if(!anime_id) return res.status(404).send("Anime não fornecido");
+    const { Name } = req.body;
+    if(!Name) return res.status(404).send("Anime não fornecido");
     try {
         const user = await dataBase.collection("sessions").findOne({token});
         if(!user) return res.status(401).send("Não autorizado");
-        const anime = await dataBase.collection("animes").findOne({_id: new ObjectId(anime_id)});
+        const anime = await dataBase.collection("animes").findOne({Name: Name});
+        // console.log(anime)
         if(!anime) return res.status(404).send("Anime não encontrado.");
-        const favoritos = await dataBase.collection("favorites").findOne({Anime: anime_id});
+        const favoritos = await dataBase.collection("favorites").findOne({$and: [{Anime: Name}, {userId: new ObjectId(user.userId)}]});
         if(favoritos) return res.status(409).send("Anime já favoritado");
 
 
-        await dataBase.collection("favorites").insertOne({userId: user.userId, Anime: anime_id});
+        await dataBase.collection("favorites").insertOne({userId: user.userId, Anime: Name});
         return res.status(202).send("Anime Favoritado com sucesso.");
 
     } catch (error) {
@@ -104,22 +127,39 @@ const favoritar = async (req, res) => {
     }
 }
 
-const desfavoritar = async (req, res) => {
+const favoritesList = async (req, res) => {
     const auth = req.headers.authorization;
     if(!auth) return res.status(422).send("Não autorizado.");
     const token = auth.replace('Baerer ', '');
-    const { anime_id } = req.headers;
-    if(!anime_id) return res.status(404).send("Anime não fornecido");
     try {
         const user = await dataBase.collection("sessions").findOne({token});
         if(!user) return res.status(401).send("Não autorizado");
-        const anime = await dataBase.collection("animes").findOne({_id: new ObjectId(anime_id)});
+
+        const list = await dataBase.collection("favorites").find({userId: user.userId}).toArray();
+
+        return res.status(200).send(list);
+    }catch(error){
+        return res.status(500).send(error);
+    }
+}
+
+const desfavoritar = async (req, res) => {
+    const auth = req.headers.authorization;
+    console.log(req.headers)
+    if(!auth) return res.status(422).send("Não autorizado.");
+    const token = auth.replace('Baerer ', '');
+    const { name } = req.headers;
+    if(!name) return res.status(404).send("Anime não fornecido");
+    try {
+        const user = await dataBase.collection("sessions").findOne({token});
+        if(!user) return res.status(401).send("Não autorizado");
+        const anime = await dataBase.collection("animes").findOne({Name: name});
         if(!anime) return res.status(404).send("Anime não encontrado.");
-        const favoritos = await dataBase.collection("favorites").findOne({Anime: anime_id});
+        const favoritos = await dataBase.collection("favorites").findOne({Anime: name});
         if(!favoritos) return res.status(404).send("Anime não encontrado");
 
 
-        await dataBase.collection("favorites").deleteOne({userId: user.userId, Anime: anime_id});
+        await dataBase.collection("favorites").deleteOne({userId: user.userId, Anime: name});
         return res.status(202).send("Anime removido dos favoritos.");
 
     } catch (error) {
@@ -127,4 +167,4 @@ const desfavoritar = async (req, res) => {
     }
 }
 
-export {signIn, signUp, favoritar, desfavoritar, logOut, unsubscribe}
+export {signIn, createMember, updateMember, favoritar, favoritesList, desfavoritar, logOut, unsubscribe}
