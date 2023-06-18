@@ -65,7 +65,10 @@ const updateAnime = async (req, res) => {
     try{
         const anime = await dataBase.collection("animes").findOne(new ObjectId(id));
         if(anime){
+            console.log(anime);
             await dataBase.collection("animes").updateOne({_id: new ObjectId(id)}, {$set: {Cover: cover, Name: name}})
+            await dataBase.collection("seasons").updateMany({Anime: anime.Name}, {$set: {Anime: name}});
+            await dataBase.collection("episodes").updateMany({Anime: anime.Name}, {$set: {Anime: name}});
             return res.status(202).send("Anime atualizado");
         }else{
             return res.status(404).send("Anime não encontrado");

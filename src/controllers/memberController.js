@@ -113,7 +113,6 @@ const favoritar = async (req, res) => {
         const user = await dataBase.collection("sessions").findOne({token});
         if(!user) return res.status(401).send("Não autorizado");
         const anime = await dataBase.collection("animes").findOne({Name: Name});
-        // console.log(anime)
         if(!anime) return res.status(404).send("Anime não encontrado.");
         const favoritos = await dataBase.collection("favorites").findOne({$and: [{Anime: Name}, {userId: new ObjectId(user.userId)}]});
         if(favoritos) return res.status(409).send("Anime já favoritado");
@@ -145,7 +144,6 @@ const favoritesList = async (req, res) => {
 
 const desfavoritar = async (req, res) => {
     const auth = req.headers.authorization;
-    console.log(req.headers)
     if(!auth) return res.status(422).send("Não autorizado.");
     const token = auth.replace('Baerer ', '');
     const { name } = req.headers;
