@@ -48,14 +48,14 @@ const readSeasons = async (req, res) => {
 }
 
 const readSeason = async (req, res) =>{
-    const {season} = req.params;
-    if(!season) return res.status(404).send("Não encontrado");
+    const {anime, season} = req.params;
+    if(!anime || !season) return res.status(404).send("Não encontrado");
 
     try {
-        const seasonInfo = await dataBase.collection("seasons").findOne({Name: season});
+        const seasonInfo = await dataBase.collection("seasons").findOne({$and: [{Anime: anime}, {Name: season}]});
+        const listSeason = await dataBase.collection("seasons").find({Anime: anime}).toArray();
 
-        const busca = {Season: seasonInfo, Episodes: episodesList};
-        return res.status(200).send(busca)
+        return res.status(200).send({seasonInfo, listSeason});
     } catch (error) {
         return res.status(500).send(error);
     }

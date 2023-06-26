@@ -10,7 +10,7 @@ season.use(express.json());
 // Seasons Routes
 season.post("/createSeason", createSeason);
 season.get("/:name/:season", readSeasons);
-season.get("/season/:season", readSeason);
+season.get("/season/:anime/:season", readSeason);
 season.put("/updateSeason", updateSeason);
 season.delete("/deleteSeason", deleteSeason);
 

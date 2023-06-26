@@ -14,6 +14,8 @@ const createEpisode = async (req, res) => {
     const  {anime, season_name, episode_name, episode_number, url} = req.body;
 
     try {
+        const animeTest = await dataBase.collection("animes").findOne({Name: anime});
+        if(!animeTest) return res.status(422).send("Anime não encontrada");
         const season = await dataBase.collection("seasons").findOne({Name: season_name});
         if(!season) return res.status(422).send("Temporada não encontrada");
     } catch (error) {
@@ -43,8 +45,9 @@ const readEpisode = async (req, res) => {
 
     try {
         const episodeInfo = await dataBase.collection("episodes").findOne({$and: [{Anime: anime}, {Season: season}, {Name: episode}]});
+        const listSeason = await dataBase.collection("seasons").find({Anime: anime}).toArray();
         if(!episodeInfo) return res.status(404).send("Episódio não encontrado");
-        return res.status(200).send(episodeInfo);
+        return res.status(200).send({episodeInfo, listSeason});
     } catch (error) {
         return res.status(500).send(error);
     }
