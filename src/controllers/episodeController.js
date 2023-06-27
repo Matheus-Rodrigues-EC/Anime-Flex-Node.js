@@ -45,9 +45,8 @@ const readEpisode = async (req, res) => {
 
     try {
         const episodeInfo = await dataBase.collection("episodes").findOne({$and: [{Anime: anime}, {Season: season}, {Name: episode}]});
-        const listSeason = await dataBase.collection("seasons").find({Anime: anime}).toArray();
         if(!episodeInfo) return res.status(404).send("Episódio não encontrado");
-        return res.status(200).send({episodeInfo, listSeason});
+        return res.status(200).send(episodeInfo);
     } catch (error) {
         return res.status(500).send(error);
     }
